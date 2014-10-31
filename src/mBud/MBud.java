@@ -5,7 +5,9 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -37,10 +39,10 @@ public class MBud {
         getResolution();
         frame = new JFrame("FrameDemo");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(frameWidth/2, frameHeight-48);
+        frame.setSize(frameWidth / 2, frameHeight - 48);
         panel = new JPanel(true);
-
         addButtons();
+        addPanels();
 
     }
 
@@ -62,19 +64,38 @@ public class MBud {
     }
 
     private static void addButtons() {
-        loadBudget = new JButton("Load Existing Budget");
-        //Add action listener to button
-        loadBudget.addActionListener(new ActionListener() {
+        addLBButton();
+        addCBButton();
+    }
 
+    private static void addLBButton() {
+        loadBudget = new JButton("Load Existing Budget");
+        loadBudget.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                //Execute when button is pressed
                 loadBudget();
             }
-
         });
-
         panel.add(loadBudget);
+    }
 
+    private static void addCBButton() {
+        createBudget = new JButton("Create Budget");
+        createBudget.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                createBudget();
+            }
+        });
+        panel.add(createBudget);
+    }
+
+    private static void addATButton() {
+        addTransaction = new JButton("New Transaction");
+        addTransaction.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                addTransaction();
+            }
+        });
+        panel.add(addTransaction);
     }
 
     private static void addTransaction() {
@@ -82,10 +103,34 @@ public class MBud {
     }
 
     private static void loadBudget() {
-        System.out.println("select budget file");
+        final JFileChooser fc = new JFileChooser();
+        int returnVal = fc.showOpenDialog(frame);
+
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File file = fc.getSelectedFile();
+            //This is where a real application would open the file.
+            System.out.println("Opening: " + file.getName() + ".");
+            ingestBudget(file);
+        } else {
+            System.out.println("Open command cancelled by user.");
+        }
     }
-    
-    private static void createBudget(){
+
+    private static void createBudget() {
         System.out.println("create budget");
+        editBudgetView("*");
+    }
+
+    private static void editBudgetView(String budgetFileName) {
+        frame.setVisible(false);
+        frame.remove(panel);
+        panel = new JPanel();
+        frame.add(panel);
+        addATButton();
+        frame.setVisible(true);
+    }
+
+    private static void ingestBudget(File file) {
+     
     }
 }
