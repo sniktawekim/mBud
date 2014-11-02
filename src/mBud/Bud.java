@@ -8,6 +8,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
@@ -31,59 +32,25 @@ public class Bud {
     /**
      * @param args the command line arguments
      */
-    public static void Bud() {
+    Bud() {
         calendarMaker();
-        bRT();//build repeating transactions      
-        bOT();//build once transactions
-        sim("Y|1", 2014, 10, 29);//simulate 1 year of transactions starting on 10/29/2014
-        sTR();//sort the transaction record by date
-        pTR();//print the report
+     //   bRT();//build repeating transactions      
+      //  bOT();//build once transactions
+      //  sim("Y|1", 2014, 10, 29);//simulate 1 year of transactions starting on 10/29/2014
+      //  sTR();//sort the transaction record by date
+       // pTR();//print the report    
     }
 
-    private static void calendarMaker() {
+    private void calendarMaker() {
         calendar = new Scheduler(2014, 10, 24);
         transRecord = new ArrayList<Transaction>();
     }
 
-    private static void bRT() {//build repeating transactions:
+    private void bRT() {//build repeating transactions:
         repeatingTransactions = new ArrayList<Transaction>();
-        Transaction payday = new Transaction("Paycheck", 1149.83, "W|2", 2014, 11, 7);
-        Transaction other = new Transaction("otha", -100.00, "W|1", 2014, 11, 3);
-        Transaction rent = new Transaction("Rent", -362.50, "M|1", 2014, 11, 1);
-        Transaction electric = new Transaction("Electric", -40, "M|1", 2014, 11, 23);
-        Transaction car = new Transaction("Car", -188.82, "M|1", 2014, 11, 14);
-        Transaction paypal = new Transaction("Paypal Debt", -270.90, "M|1", 2014, 11, 1);
-        Transaction carInsurance = new Transaction("Car Insurance", -149.63, "M|1", 2014, 11, 19);
-        Transaction internet = new Transaction("Internet", -22.00, "M|1", 2014, 11, 04);
-        Transaction gas = new Transaction("Gas", -30, "W|1", 2014, 10, 30);
-        Transaction savings = new Transaction("Savings", -100, "W|2", 2014, 11, 7);
-        Transaction phone = new Transaction("Phone", -40, "M|1", 2014, 10, 30);
-
-        repeatingTransactions.add(gas);
-        transRecord.add(gas);
-        repeatingTransactions.add(payday);
-        transRecord.add(payday);
-        repeatingTransactions.add(savings);
-        transRecord.add(savings);
-        repeatingTransactions.add(other);
-        transRecord.add(other);
-        repeatingTransactions.add(rent);
-        transRecord.add(rent);
-        repeatingTransactions.add(electric);
-        transRecord.add(electric);
-        repeatingTransactions.add(car);
-        transRecord.add(car);
-        repeatingTransactions.add(paypal);
-        transRecord.add(paypal);
-        repeatingTransactions.add(carInsurance);
-        transRecord.add(carInsurance);
-        repeatingTransactions.add(internet);
-        transRecord.add(internet);
-        repeatingTransactions.add(phone);
-        transRecord.add(phone);
     }
 
-    private static void sim(String distance, int startYear, int startMonth, int startDay) {
+    private void sim(String distance, int startYear, int startMonth, int startDay) {
         Scheduler destination = new Scheduler(startYear, startMonth, startDay);
         System.out.println(destination);
         destination.add(distance);
@@ -99,7 +66,7 @@ public class Bud {
         }
     }
 
-    private static void sTR() {//sort Transaction Records
+    private void sTR() {//sort Transaction Records
         ArrayList newTransRecord = new ArrayList<Transaction>();
 
         while (transRecord.size() > 0) {
@@ -117,38 +84,19 @@ public class Bud {
         transRecord = newTransRecord;
     }
 
-    private static void pTR() {//print transaction records.
+    public void pTR() {//print transaction records.
         System.out.println("TRANSACTION RECORDS:");
+        sTR();
         for (int i = 0; i < transRecord.size(); i++) {
-            balance += transRecord.get(i).getAmount();
-            balance = round(balance, 2);
-            if (balance < 0) {
-                balance = balance - 40;
-                System.out.println("OVERDRAFT FEE: -$40: " + balance);
-            } else if (balance < 500) {
-                System.out.println("**********-----UNDER 500----**********");
-
-            }
-            System.out.print(transRecord.get(i) + "\tBL:\t" + balance);
-            if (transRecord.get(i).getTitle().compareToIgnoreCase("Savings") == 0) {
-                saved++;
-                System.out.println("\tSavings: " + (100 * saved));
-            } else {
-                System.out.println("");
-            }
+            System.out.println(transRecord.get(i));
         }
     }
 
-    private static void bOT() {
-        Transaction Moe = new Transaction("Moe", -180, "0", 2014, 11, 8);
-        transRecord.add(Moe);
-        Transaction Moe2 = new Transaction("Moe2", -228, "0", 2014, 11, 22);
-        transRecord.add(Moe2);
-        Transaction hayward = new Transaction("Hayward", -300, "0", 2014, 11, 22);
-        transRecord.add(hayward);
+    private void bOT() {//build one time transactions
+
     }
 
-    public static double round(double value, int places) {
+    public double round(double value, int places) {
         if (places < 0) {
             throw new IllegalArgumentException();
         }
@@ -158,16 +106,29 @@ public class Bud {
         return bd.doubleValue();
     }
 
-    public static void save() throws IOException {
-        File file = new File("output.txt");
-        BufferedWriter out = new BufferedWriter(new FileWriter(file));
-        //
-       // out.write(text);
-        for(int i=0;i<transRecord.size();i++){
-            out.write(transRecord.get(i).toXML());
+    public void save() {
+        String fname = "output.txt";
+        try {
+            PrintStream out = new PrintStream(new File(fname));
+            for (int i = 0; i < transRecord.size(); i++) {
+                out.println(transRecord.get(i).toXML());
+            }        
+            out.close();
+        } catch (Exception e) {
+            System.out.println(e);
         }
-        //
-        out.close();
+    }
+    public void addTransaction(Transaction toAdd){
+        transRecord.add(toAdd);
+    }
+    public String toString(){
+        String toReturn = "";
+            System.out.println("TRANSACTION RECORDS:");
+        sTR();
+        for (int i = 0; i < transRecord.size(); i++) {
+            toReturn = toReturn + transRecord.get(i)+"\n";
+        }
+        return toReturn;
     }
 
 }

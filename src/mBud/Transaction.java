@@ -9,15 +9,14 @@ import java.util.Date;
 public class Transaction {
 
     double amount;
-    String repeatCode;
-    String date;
-    String title;
+    public String repeatCode = "test";
+    public String date;
+    public String title;
     int year;
     int month;
     int day;
 
     Transaction(String title, double amount, String repeatCode, int year, int month, int day) {
-        month = month;
         this.amount = amount;
         this.repeatCode = "" + repeatCode;
         this.year = year;
@@ -27,8 +26,43 @@ public class Transaction {
         getDate();
     }
 
+    Transaction(String fromXML) {
+        for (int i = 0; i < fromXML.split("</").length - 1; i++) {
+            String current = fromXML.split("</")[i];
+            int tagOpen = current.lastIndexOf("<");
+            int tagClose = current.lastIndexOf(">");
+
+            String tag = "" + current.substring(tagOpen + 1, tagClose);
+            String value = "" + current.substring(tagClose + 1);
+            if (tag.compareToIgnoreCase("title") == 0) {
+                this.title = value;
+            } else if (tag.compareToIgnoreCase("y") == 0) {
+                year = Integer.parseInt(value);
+            } else if (tag.compareToIgnoreCase("m") == 0) {
+                month = Integer.parseInt(value);
+            } else if (tag.compareToIgnoreCase("d") == 0) {
+                day = Integer.parseInt(value);
+            } else if (tag.compareToIgnoreCase("a") == 0) {
+                amount = Double.parseDouble(value);
+
+            } else if (tag.compareToIgnoreCase("r") == 0) {
+                repeatCode = "" + value;
+            }
+
+        }
+        getDate();
+    }
+
+    public String getRepeatCode() {
+        return repeatCode;
+    }
+
     public String toString() {
         return "" + month + "/" + day + "/" + year + "\t" + title + "\t" + amount + "\t {" + repeatCode + "}";
+    }
+
+    public String toXML() {
+        return "<title>" + title + "</title><y>" + year + "</y><m>" + month + "</m><d>" + day + "</d><a>" + amount + "</a><r>" + repeatCode + "</r></t>";
     }
 
     public String getDate() {
@@ -101,7 +135,8 @@ public class Transaction {
         return false;
 
     }
-    public double getAmount(){
+
+    public double getAmount() {
         return amount;
     }
 }
